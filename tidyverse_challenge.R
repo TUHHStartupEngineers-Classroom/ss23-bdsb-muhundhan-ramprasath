@@ -1,40 +1,27 @@
----
-title: "My Lab Journal"
-subtitle: "Business Data Science Basics"
-author: "Ramprasath Muhundhan"
----
+# Data Science at TUHH ------------------------------------------------------
+# SALES ANALYSIS ----
 
-![](assets/logo/TIE_logo.svg){width=80% fig-align="center"}
-
------------------------------------------
-#Sales Analysis, Tidyverse Challenge
------------------------------------------
-
-# Libraries
-
-Load the following libraries. 
-```{r}
+# 1.0 Load libraries ----
 library(tidyverse)
 library(readxl)
 
-```
-
-# Import Files
-```{r}
+# 2.0 Importing Files ----
 bikes_tbl <- read_excel(path = "00_data/01_raw_data/bikes.xlsx")
 orderlines_tbl <- read_excel("00_data/01_raw_data/orderlines.xlsx")
 bikeshops_tbl  <- read_excel("00_data/01_raw_data/bikeshops.xlsx")
-```
 
-#joining data
-```{r}
+# 3.0 Examining Data ----
+bikeshops_tbl
+glimpse(bikeshops_tbl)
+bikeshops_tbl %>% head(n=5)
+
+# 4.0 Joining Data ----
+left_join(bikeshops_tbl,orderlines_tbl, by = c("bikeshop.id" = "customer.id"))
 bike_orderlines_joined_tbl <- orderlines_tbl %>%
   left_join(bikes_tbl, by = c("product.id" = "bike.id")) %>%
   left_join(bikeshops_tbl, by = c("customer.id" = "bikeshop.id"))
-```
 
-#wrangling data
-```{r}
+# 5.0 Wrangling Data ----
 bike_orderlines_wrangled_tbl <- bike_orderlines_joined_tbl %>% 
   separate(col = location, 
            into = c("City","State"),
@@ -48,12 +35,11 @@ bike_orderlines_wrangled_tbl <- bike_orderlines_joined_tbl %>%
          everything()) %>%
   rename(bikeshop = name) %>%
   set_names(names(.) %>% str_replace_all("\\.", "_"))
-```
 
-# Manipulation of data (sales by state)
-```{r}
+# 6.0 Business Insights ----
+# 6.1 Sales by State ----
 library(lubridate)
-
+# Step 1 - Manipulate
 sales_by_state_tbl <- bike_orderlines_wrangled_tbl %>%
   select(State,total_price) %>%
   group_by(State) %>%
@@ -63,11 +49,7 @@ sales_by_state_tbl <- bike_orderlines_wrangled_tbl %>%
                                      prefix = "", 
                                      suffix = " €"))
 sales_by_state_tbl
-```
-
-# Visualize sales by state data
-
-```{r plot, fig.width=10, fig.height=7}
+# Step 2 - Visualize
 sales_by_state_tbl %>% ggplot(aes(x = State, y =sales)) +
   geom_col(fill = "#2DC6D6") + 
   geom_label(aes(label = sales_text)) +
@@ -83,11 +65,10 @@ sales_by_state_tbl %>% ggplot(aes(x = State, y =sales)) +
     x = "", # Override defaults for x and y
     y = "Revenue"
   )
-```
 
-#Manipulate sales by state and location data
+# 6.2 Sales by Year and Location ----
 
-```{r}
+# Step 1 - Manipulate
 sales_by_year_state_tbl <- bike_orderlines_wrangled_tbl %>%
   select(order_date,total_price,State) %>%
   mutate(year = year(order_date)) %>%
@@ -101,11 +82,7 @@ sales_by_year_state_tbl <- bike_orderlines_wrangled_tbl %>%
 
 
 sales_by_year_state_tbl
-```
-
-# Visualize sales by state data
-
-```{r plot2, fig.width=10, fig.height=7}
+# Step 2 - Visualize
 sales_by_year_state_tbl %>% ggplot(aes(x = year, y = sales, fill = State)) + 
   geom_col() +
   facet_wrap(~ State) +
@@ -118,4 +95,13 @@ sales_by_year_state_tbl %>% ggplot(aes(x = year, y = sales, fill = State)) +
     subtitle = "Each state different sales trend",
     fill = "State" 
   )
-```
+
+
+
+# 7.0 Writing Files ----
+
+# 7.1 Excel ----
+
+# 7.2 CSV ----
+
+# 7.3 RDS ----
