@@ -1,8 +1,83 @@
 ---
 title: "Data Wrangling"
-author: "Joschka Schwarz"
+author: "Ramprasath Muhundhan"
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
+```{r}
+library(tidyverse)
+library(vroom)
+library(data.table)
+```
+#Loading files 
+
+```{r}
+patent_url <- "./../../Patent_data_reduced/patent.tsv"
+patent_dt <- fread(patent_url)
+class(patent_dt)
+
+patent_assignee <- "./../../Patent_data_reduced/patent_assignee.tsv"
+patent_assignee_dt <- fread(patent_assignee)
+class(patent_assignee_dt)
+
+assignee_url <- "./../../Patent_data_reduced/assignee.tsv"
+assignee_dt <- fread(assignee_url)
+class(assignee_dt)
+
+uspc_url <- "./../../Patent_data_reduced/uspc.tsv"
+uspc_dt <- fread(uspc_url)
+
+```
+
+
+#Challenge 1 List 10 us Companies with most patents
+```{r}
+combined_data <- merge(patent_assignee_dt, assignee_dt, by.x="assignee_id", by.y ="id")
+top10_us_company <- combined_data %>%
+  filter(type == 2) %>%
+  group_by(organization) %>%
+  summarize(patent_count = n()) %>%
+  ungroup() %>%
+  arrange(desc(patent_count))
+```
+
+#Challenge 2 - List top 10 companies with August 2014
+
+```{r}
+aug_dt <- patent_dt[month(date) == 8 & year(date) == 2014]
+  
+combined_data <- merge(merge(aug_dt,patent_assignee_dt, by.x="id",by.y="patent_id"),assignee_dt, by.x="assignee_id",by.y="id")
+
+top10_us_company <- combined_data %>%
+  filter(type == 2) %>%
+  group_by(organization) %>%
+  summarize(patent_count = n()) %>%
+  ungroup() %>%
+  arrange(desc(patent_count))
+
+```
+
+#Challenge3 - List top 5 most innovatiove companies
+
+```{r}
+combined_data <- merge(patent_assignee_dt,assignee_dt,by.x="assignee_id",by.y="id")
+
+company_patents <- combined_data %>%
+filter(!(is.na(organization))) %>%
+group_by(organization) %>%
+summarize(patent_count = n()) %>%
+ungroup() %>%
+arrange(desc(patent_count)) %>% 
+head(10)
+
+top_10_companies <- head(company_patents, 10)$organization
+
+filtered_data <- combined_data[organization %in% top_10_companies]
+
+filtered_uspc <- merge(filtered_data, uspc_dt, by.x = "patent_id", by.y = "patent_id")
+
+top_main_classes <- filtered_uspc %>%
+  group_by(mainclass_id) %>%
+  summarize(occurrences = n()) %>%
+  arrange(desc(occurrences)) %>%
+  head(5)
+```

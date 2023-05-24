@@ -1,0 +1,2 @@
+userid = "username"
+pwd = "password"

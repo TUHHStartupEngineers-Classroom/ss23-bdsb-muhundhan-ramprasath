@@ -1,8 +1,105 @@
 ---
 title: "Data Acquisition"
-author: "Joschka Schwarz"
+author: "Ramprasath Muhundhan"
 ---
+#Challenge 1
+#get top 10 rated movies from imdb
+```{r}
+library(tidyverse)
+library(httr)
+library(rvest)
+```
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
+#import files
+```{r}
+url  <- "https://www.imdb.com/chart/top/"
+resp <- GET( url = "https://www.imdb.com/chart/top/",  
+            add_headers('Accept-Language' = "en-US, en;q=0.5"))
+imdb_html <- content(resp)
+```
+
+#Get movie titles
+```{r}
+title_tbl <- read_html(url) %>% 
+html_nodes(css=".titleColumn > a") %>%
+html_text() %>%
+head(10)
+```
+
+```{r}
+rank_tbl <- read_html(url) %>%
+html_nodes(css=".titleColumn") %>%
+html_text() %>%
+head(10) %>%
+stringr::str_extract("(?<= )[0-9]*(?=\\.\\n)")%>% 
+as.numeric()
+```
+
+```{r}
+top10_movies <- tibble(rank = rank_tbl,title = title_tbl)
+```
+
+```{r}
+top10_movies
+```
+
+#Challenge 2
+
+
+#Load Libraries ---
+```{r}
+library(tidyverse)
+library(rvest)
+library(glue)
+library(xml2)
+```
+
+```{r}
+home_url <- "https://www.rosebikes.com"
+home_html <- read_html("https://www.rosebikes.com/bikes/")
+```
+
+```{r}
+bike_family_tbl <- home_html %>%
+  html_nodes(css = ".catalog-navigation__link") %>%
+  html_attr("href") %>%
+  str_replace_all("^/", "https://www.rosebikes.com/") %>%
+  as_tibble() %>%
+  rename("mtburl" = value)
+```
+
+#moutain bikes table
+```{r}
+mtb_url <- read_html(bike_family_tbl$mtburl[1]) %>%
+  html_nodes(css = ".catalog-category-bikes__picture-wrapper--left") %>%
+  html_attr("href") %>%
+  {glue("https://www.rosebikes.com{.}")} %>%
+  as_tibble() %>%
+  rename(URL = value)
+```
+
+
+#Names of count solo mtb tyes
+```{r}
+name_tbl <- read_html(mtb_url$URL[1]) %>%
+  html_nodes(css = ".basic-headline.basic-headline--no-margin.basic-headline--small.basic-headline--left .basic-headline__title") %>%
+  html_text() 
+```
+
+
+#Price of count solo bike type  
+```{r}
+price_tbl <- read_html(mtb_url$URL[1]) %>%
+html_nodes(css = ".product-tile-price__current.catalog-category-model__price-current .product-tile-price__current-value.catalog-category-model__price-current-value") %>%
+html_text() %>%
+gsub("[^0-9.-]","",.)
+```
+
+#Tibble Format
+```{r}
+count_solo_tbl <- tibble(name = name_tbl, price = price_tbl)
+```
+
+```{r}
+count_solo_tbl
+```
