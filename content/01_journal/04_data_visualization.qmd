@@ -25,9 +25,9 @@ covid_data_tbl %>% ggplot(aes(x=date, y = total_cases, color = location)) +
 geom_line() +
   labs(
     title = "Global Total Cases over Time",
-    subtitle = "Source: Our World in Data",
-    x = "Date",
-    y = "Total Cases"
+    subtitle = "Grouped by country",
+    x = "Year",
+    y = "Total Covid Cases"
   ) +
   theme_grey()
 ```
@@ -50,7 +50,7 @@ covid_mortality_tbl %>%
   scale_fill_gradient2(low = "green", mid = "grey", high = "red", midpoint = 0.003) +
   labs(
     title = "Mortality Rate by Country",
-    subtitle = "Source: Our World in Data",
+    subtitle = "grouped by country",
     x = "",
     y = ""
   ) +

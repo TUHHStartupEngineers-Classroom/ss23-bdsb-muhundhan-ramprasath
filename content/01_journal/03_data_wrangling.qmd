@@ -7,24 +7,23 @@ author: "Ramprasath Muhundhan"
 library(tidyverse)
 library(vroom)
 library(data.table)
-library(tictoc)
 ```
 #Loading files 
 
 ```{r}
-patent_url <- "Patent_data_reduced/patent.tsv"
+patent_url <- "./../../Patent_data_reduced/patent.tsv"
 patent_dt <- fread(patent_url)
 class(patent_dt)
 
-patent_assignee <- "Patent_data_reduced/patent_assignee.tsv"
+patent_assignee <- "./../../Patent_data_reduced/patent_assignee.tsv"
 patent_assignee_dt <- fread(patent_assignee)
 class(patent_assignee_dt)
 
-assignee_url <- "Patent_data_reduced/assignee.tsv"
+assignee_url <- "./../../Patent_data_reduced/assignee.tsv"
 assignee_dt <- fread(assignee_url)
 class(assignee_dt)
 
-uspc_url <- "Patent_data_reduced/uspc.tsv"
+uspc_url <- "./../../Patent_data_reduced/uspc.tsv"
 uspc_dt <- fread(uspc_url)
 
 ```
