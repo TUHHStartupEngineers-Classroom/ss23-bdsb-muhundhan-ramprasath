@@ -1,8 +1,58 @@
 ---
 title: "Data Visualization"
-author: "Joschka Schwarz"
+author: "Ramprasath Muhundhan"
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
+#Challenge 1
+#Load Libraries
+```{r}
+library(tidyverse)
+library(lubridate)
+library(ggthemes)
+```
+
+```{r}
+covid_data_tbl <- read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv") %>%
+ filter(location %in% c("Germany","United States", "India","Spain")) %>%
+ filter(!is.na(total_cases)) %>%
+ filter(date < "2023-05-15") %>%
+ ungroup()
+```
+
+#plotting
+```{r}
+covid_data_tbl %>% ggplot(aes(x=date, y = total_cases, color = location)) +
+geom_line() +
+  labs(
+    title = "Global Total Cases over Time",
+    subtitle = "Source: Our World in Data",
+    x = "Date",
+    y = "Total Cases"
+  ) +
+  theme_grey()
+```
+
+#Challenge 2
+```{r}
+covid_mortality_tbl <- covid_data_tbl %>%
+mutate(mortality_rate = total_deaths / population)
+
+world <- map_data("world")
+```
+
+```{r}
+covid_mortality_tbl %>%
+  filter(date == "2023-05-01") %>%
+  ggplot(aes(mortality_rate)) +
+  geom_map(aes(fill = mortality_rate, map_id = location), map = world) +
+  expand_limits(x = world$long, y = world$lat) +
+  coord_map("moll") +
+  scale_fill_gradient2(low = "green", mid = "grey", high = "red", midpoint = 0.003) +
+  labs(
+    title = "Mortality Rate by Country",
+    subtitle = "Source: Our World in Data",
+    x = "",
+    y = ""
+  ) +
+  theme_map()
+```
